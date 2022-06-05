@@ -1,0 +1,258 @@
+-----------------------------------------------------------------------
+| CHAPTER 1 - SPEED IT UP!                                            |
+-----------------------------------------------------------------------
+
+- History of Concurrency
+
+    - Concurrency is derived from early work on railroads and telegraphs.
+
+
+    - Dijkstra published the first paper on the topic in 1965, in which he identified and solved the
+        mutual exclusion problem.
+
+
+    - Problems became relevant again when systems started becoming multi-processor/multi-core.
+
+
+
+- Threads and Multithreading
+
+    - A 'thread' is an ordered stream of instructions that can be scheduled to run by an OS.  They
+        typically live within processes, and consist of an identifier, a program counter, a stack, and
+        and a set of registers.  Threads are the smallest unit of execution to which the processor
+        can allocate time.
+
+
+    - Threads can interact with shared resources, and communication between threads is possible.  They
+        are also able to share memory, but issues such as race consitions can occur.
+
+
+    - We have 2 types of threads:
+
+        1. User-level threads = threads that we can actively create, run, and kill for our tasks
+
+        2. Kernel-level threads = low-level threads acting on behalf of the OS
+
+
+    - 'Multithreading' means running multiple threads on a processor simultaneously, using context
+        switching to switch between threads.
+
+
+    - Advantages of Multithreading
+
+        1. Multiple threads are excellent for speeding up I/O-bound programs
+        2. Threads have a lighter memory footprint than processes
+        3. Theads share resources, and communication between them is easier
+
+
+    - Disadvantages of Multithreading
+
+        1. CPython threads are hamstrung by the limitations of the GIL
+        2. Have to be careful to avoid race conditions
+        3. Too much context switching is expensive
+
+
+
+- Processes
+
+    - Processes are very similar to threads, but they have the advantage that they are not bound to a
+        singular CPU core.
+
+
+    - Processes contain one main primary thread, but can spawn multiple sub-threads that each contain
+        their own set of registers and a stack.
+
+
+    - We can use processes to speed up code that is CPU-bound.  However, we need to be careful about
+        how we use IPC to avoid hampering performance.
+
+
+    - Unix processes are created by the OS, and typically contain:
+
+        - Process id, process group id, user id, and group id
+        - Environment
+        - Working directory
+        - Program instructions
+        - Registers
+        - Stack
+        - Heap
+        - File descriptors
+        - Signal actions
+        - Shared libraries
+        - IPC tools (such as message queues, pipes, semaphores, or shared memory)
+
+
+    - Advantages of processes:
+
+        1. Make better use of multi-core processors
+        2. Better than multithreading at CPU-intensive tasks
+        3. We can sidestep the limitations of GIL by spawing multiple processes
+        4. Crashing processes will not kill entire program
+
+
+    - Disadvantages of processes:
+
+        1. No shared memory, to have to use IPC
+        2. Require more memory
+
+
+
+- Multiprocessing
+
+    - In Python, if we want to try to improve on the performance of a single-threaded application,
+        we have 2 choices:
+
+        1. Use multiple threads (we are limited to a single CPU core)
+        2. Use multiple processes (we can use all the cores)
+
+
+    - To find the number of cores available on your system:
+
+        import multiprocessing
+
+        multiprocessing.cpu_count()
+
+
+    - The multiprocessing approach takes a performance hit, because it has no shared state and data
+        has to be passed via IPC.  This does make many programs easier to write since we don't have
+        to worry about race conditions.
+
+
+
+- Event-Driven Programming
+
+    - The canonical example of event-driven applications is a GUI (ie JS in a web browser) where
+        callbacks are registed to be called when events happen.
+
+
+    - Callbacks are often used in scenarios where an action is asynchronous.  Whenever the callback
+        is invoked, we execute our handler.
+
+
+    - Example - Turtle Kids Code
+
+        nathan = turtle.Turtle()
+
+        def move_forward():
+            nathan.forward(50)
+
+        def start():
+            window.onkey(moveForward, 'Up')
+            window.listen()
+            window.mainloop()
+
+
+
+- Reactive Programming
+
+    - Reactive programming is similar to event-driven, but it revolves around data rather than
+        events.  It deals with streams of data, and reacts to specific data changes.
+
+
+    - 'RxPy' is the Python equivalent of the 'ReactiveX' framework.  The framework is a combination
+        of the observer pattern, iterator pattern, and functional programming.
+
+      We essentially subscribe to different streams of incoming data, then create observers to 
+        listen for specific events being triggered.
+
+
+    - For example, we have temperature sensors around a data center, we can subscribe to the readings,
+        and take some action like redirect airflow when an area gets too hot.
+
+        import rx
+        from rx import Observable, Observer
+
+        class TemperatureObserver(Observer):
+            # Every time we receive a temperature reading, this is called
+            def on_next(self, x):
+                print('Temperature is: %s degrees centigrade.' % x)
+                if (x > 6):
+                    print('Warning: Temperature is exceeding recommended limit.')
+                if (x == 9):
+                    print('Data center is shutting down.')
+
+            # If we get an error message, we can handle it here
+            def on_error(self, e):
+                print('Error: %s' % e)
+
+            # This is called after the stream is finished
+            def on_completed(self):
+                print('All temps read.')
+
+
+
+- GPU Programming
+
+    - GPUs were created to render high resolution, fast action video games.  They ensure that every
+        vertex of the game's 3D models are in the right place, and they are updated every few
+        milliseconds to ensure a smooth 60 FPS.
+
+
+    - We now have libraries (including PyCUDA, OpenCL, and Theano) that allow us to use a GPU for
+        general-purpose computationally expensive programs.
+
+
+    - The 'PyCUDA' library allows us to interact with Nvidia's CUDA parallel computation API in 
+        Python.  It's very fast and flexible, but will only work on Nvidia GPUs.
+
+
+    - The 'OpenCL' library can be used with a range of different GPUs, including Nvidia's.  It
+        was originally conceived by Apple.
+
+
+    - The 'Theano' library allows you to use the GPU at speeds that rival C implementations.
+
+
+
+- The Limitations of Python
+
+    - The GIL is a mutual exclusion lock which prevents multiple threads from executing Python code
+        in parallel.  The lock can only be held by one thread at a time, and a thread has to acquire
+        the lock before it can proceed to execute its own code.
+
+      This was put into place to combat the non-thread-safe memory management.
+
+
+    - Guido van Rossum said he'd accept a GIL-less Python, as long as it didn't negatively affect
+        the performance of a single-threaded application.
+
+      There have been attempts to get rid of the GIL, but the addition of all the extra locks
+        slowed the appication down by more than a factor of 2.
+
+
+    - Libraries like 'NumPy' can do everything they need to outside of the GIL.
+
+
+    - Jython has been shown to outperform CPython on some large data sets.  Also, you can import
+        Java libraries, which might be useful.
+
+
+
+- Concurrent Image Download
+
+    - One of the best cases for multithreading is downloading multiple images or files, since it
+        is I/O-bound.  To illustrate this, we'll retrieve 10 images from 'lorempixel.com', which 
+        gives us a different image every time we hit the link.
+
+
+    - The sequential version of the image downloader is located at 'code/ch01/sequential_image.py'.
+        It took us 4.64s to download the 10 images.
+
+
+    - The concurrent version of the image downloader is located at 'code/ch01/concurrent_image.py'.
+        It took us 1.28s.
+
+
+
+- Number Crunching with Multiprocessing
+
+    - In this example, we'll see how multiprocessing shines with CPU-bound tasks.  This time, we'll
+        find the prime factors of 10,000 random numbers between 20,000 and 100,000,000.
+
+
+    - The sequential version of the prime factorization calculator is located at
+        'code/ch01/sequential_prime.py'.  It took 3.29s to finish.
+
+
+    - The concurrent version, which is located at 'code/ch01/concurrent_prime.py', used 10 processes
+        to calculate the primes.  It took 1.05 s.
