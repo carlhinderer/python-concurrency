@@ -24,7 +24,7 @@
 
 
     - Threads can interact with shared resources, and communication between threads is possible.  They
-        are also able to share memory, but issues such as race consitions can occur.
+        are also able to share memory, but issues such as race conditions can occur.
 
 
     - We have 2 types of threads:

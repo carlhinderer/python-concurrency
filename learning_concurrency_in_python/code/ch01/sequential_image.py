@@ -19,5 +19,6 @@ def main():
     totalTime = t1 - t0
     print("Total Execution Time {}".format(totalTime))
 
+
 if __name__ == '__main__':
     main()

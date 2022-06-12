@@ -1,0 +1,179 @@
+-----------------------------------------------------------------------
+| CHAPTER 2 - PARALLELIZE IT                                          |
+-----------------------------------------------------------------------
+
+- Understanding Concurrency
+
+    - Concurrency and parallelism are concepts that are commonly confused, even though they are quite
+        different.  Concurrency is the practice of doing multiple things at the same time (though not
+        necessarily in parallel).
+
+      The best way to think about concurrency is to imagine a single employee switching between
+        multiple tasks.
+
+
+    - All concurrent systems share a similar set of properties:
+
+        1. Multiple Actors = different processes and threads all trying to make progress
+
+        2. Shared Resources = memory, disk, etc.
+
+        3. Rules = rules about locks, memory access, etc. to ensure correctness
+
+
+
+- I/O Bottlenecks
+
+    - I/O bottlenecks occur when your computer spends more time waiting for I/O than processing
+        information.  A web browser is a good example of this, it spends a lot more time loading
+        than rendering.
+
+
+    - There are 2 ways to improve applications that are experiencing I/O bottleneck:
+
+        1. Improve the speed of the underlying I/O by buying more expensive and faster hardware
+
+        2. Improve the way we handle the I/O requests
+
+
+    - For instance, here is a very simple webcrawler using just the 'urllib' library:
+
+        import time
+        import urllib.request
+
+        t0 = time.time()
+        req = urllib.request.urlopen('http://www.example.com')
+        pageHtml = req.read()
+        t1 = time.time()
+        print("Total Time To Fetch Page: {} Seconds".format(t1-t0))
+
+
+    - Now, suppose we want to follow every link to other pages so that we can index them in the future.
+
+        import urllib.request
+        import time
+        from bs4 import BeautifulSoup
+
+        t0 = time.time()
+        req = urllib.request.urlopen('http://www.example.com')
+        t1 = time.time()
+        print("Total Time To Fetch Page: {} Seconds".format(t1-t0))
+        soup = BeautifulSoup(req.read(), "html.parser")
+
+        for link in soup.find_all('a'):
+            print(link.get('href'))
+
+        t2 = time.time()
+        print("Total Execeution Time: {} Seconds".format)
+
+
+    - Most of this program's running time is spent waiting on network requests.
+
+
+
+- Understanding Parallelism
+
+    - Parallelism is the art of executing 2 or more actions simultaneously (as opposed to concurrency,
+        where you make progress on 2 or more things at the same time).
+
+      Note that you need multiple processors to achieve true parallelism.
+
+
+
+- CPU Configurations
+
+    - CPU-bound bottlenecks are found in applications that do a lot of heavy number crunching or
+        other computationally expensive tasks.
+
+
+    - Single-Core CPUs
+
+        - Processors rapidly switch between threads of execution many thousands of time per second,
+            in what is known as a 'context switch'.  This allows us to make progress on many things
+            in a given second.
+
+        - Advantages are no complex communication protocols and low power usage.  Disadvantages that
+            they are limited on size due to heat dissipation.
+
+
+    - Martelli model of scalability
+
+        - Model represents 3 different types of problems and programs:
+
+            1. 1 Core = single-threaded and single process programs
+
+            2. 2-8 Cores = multithreaded and multiprocessing programs
+
+            3. 9+ Cores = distributed computing
+
+
+    - Multi-core processors
+
+        - Multi-core processors contain multiple independent cores, each of which contains everything
+            it needs to execute a series of stored instructions.
+
+        - Each core follows its own Fetch-Decode-Execute cycle.
+
+        - Advantages are they transcend performance limitations of single-core systems.  Disadvantages
+            are that they take more power and cross-core communication is difficult to get right. 
+
+
+
+- System Architecture Styles
+
+    - There are a number of different memory architecture styles that suit different use cases.  We'll 
+        use the taxonomy proposed by Michael Flynn in 1972.
+
+
+    - SISD (Single instruction stream, single data stream)
+
+        - Classical Von Neumann architecture, one sequential stream of data and one core to process it.
+
+        - This is what a computer was for many years.  Example - Pentium 4.
+
+
+    - SIMD (Single instruction stream, multiple data stream)
+
+        - Best suited for working with multimedia like 3D graphics.  For instance, array operations.
+
+        - Example: GPU programming with OpenGL
+
+
+    - MISD (Multiple instruction stream, single data stream)
+
+        - No real examples or modern implementations.  No modern use case.
+
+
+    - MIMD (Multiple instruction stream, multiple data stream)
+
+        - Diverse category that includes all modern-day multi-core processors.  Are able to run a
+            number of distinct operations on multiple datasets in parallel.
+
+
+
+- Memory Architecture Styles
+
+    - One of the biggest challenges is the speed at which we can access data.  If we don't account for
+        this problem, we'll never see any performance gains.  
+
+
+    - UMA (Uniform Memory Access)
+
+        - In this style, a shared memory space can be utilized in a uniform manner by any number of
+            processing cores.  This style is also known as 'SMP' or 'Symmetric Shared-Memory
+            Multiprocessors'.
+
+        - Each processor interfaces with a bus which performs all memory accessing.  This is not as
+            scalable as NUMA since each additional processor puts more strain on the bus.
+
+        - Advantages are that all RAM access takes the same amount of time, the cache is coherent and
+            consistent, and thus hardware design is simpler.  Disadvantage is a single memory bus.
+
+
+    - NUMA (Non-uniform Memory Access)
+
+        - Some memory accesses may be faster than others.  Each processor has it's own cache, access
+            to main memory, and independent I/O.  
+
+        - Advantage is that NUMA machines are very scalable.  Disadvantages are non-deterministic
+            memory times and processors have to observe changes made by other processors.
