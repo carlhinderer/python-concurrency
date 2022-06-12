@@ -1,0 +1,108 @@
+-----------------------------------------------------------------------
+| CHAPTER 3 - LIFE OF A THREAD                                        |
+-----------------------------------------------------------------------
+
+- Threads in Python
+
+    - Here is the definition of the 'Thread' class constructor:
+
+        # Python Thread class constructor
+        def __init__(self, group=None,
+                           target=None,
+                           name=None,
+                           args=(),
+                           kwargs=None,
+                           verbose=None):
+
+
+        group: This is a special parameter which is reserved for a future extension.
+
+        target: This is the callable object to be invoked by the 'run()' method. If not passed, this will 
+                  default to None, and nothing will be started.
+
+        name: This is the thread name.
+
+        args: This is the argument tuple for target invocation. It defaults to ().
+
+        kwargs: This is a dictionary of keyword arguments to invoke the base class constructor.
+
+
+
+- Thread States
+
+    1. New = Thread hasn't started yet, and hasn't been allocated resources.
+
+    2. Runnable = Waiting for scheduler, has all resources it needs to proceed.
+
+    3. Running = Thread is executing.
+
+    4. Not Running = Thread has been paused in some way, possibly to wait for I/O.
+
+    5. Dead = Killed intentionally or not.
+
+
+
+- Example - Thread States
+
+    - Here, we'll look at the various states our theads can be in:
+
+        import threading
+        import time
+
+        # Simple method for thread to execute
+        def thread_worker():
+            print('My thread has entered the Running state.')
+            time.sleep(10)
+            print('My thread is terminating.')
+
+        # Still no resources allocated after this
+        my_thread = threading.Thread(target=thread_worker)
+
+        # Allocate resource and make thread runnable
+        my_thread.start()
+
+
+
+- Ways to Start a Thread
+
+    - Starting a Thread
+
+    - Inheriting from the Thread Class
+
+    - Forking
+
+    - Daemonizing a Thread
+
+
+
+- Handling Threads in Python
+
+    - Starting Lots of Threads
+
+    - Slowing Down Programs Using Threads
+
+    - Getting the Total Number of Active Threads
+
+    - Getting the Current Thread
+
+    - Main Thread
+
+    - Enumerating All Threads
+
+    - Identifying Threads
+
+    - Ending a Thread
+
+
+
+- How the OS Handles Threads
+
+
+
+- Multithreading Models
+
+    - One-to-One Thread Mapping
+
+    - Many-to-One
+
+    - Many-to-Many
