@@ -65,13 +65,30 @@
 
 - Ways to Start a Thread
 
-    - Starting a Thread
+    - We can run a thread with a single function if we have some simple logic.  This is shown
+        in 'starting_threads.py' in the 'start_function_threads' function.
 
-    - Inheriting from the Thread Class
 
-    - Forking
+    - If we have more complex logic, we can inherit from the Thread class.  This is shown in the
+        'start_class_threads' function.  
 
-    - Daemonizing a Thread
+
+    - We can use 'forking' to create a replica of a process.  When created, this new clone receives
+        it's own PID independent of the parent process.
+
+      For example, Apache does this to spawn off new processes, each of which has it's own address 
+        space and can process it's own requests.  This way if a process crashes or dies, other
+        processes running concurrently will be unaffected.
+
+      This approach is shown in the 'parent' and 'child' functions.
+
+
+    - We may have a need to start 'daemon threads', which have no endpoint.  They will run forever
+        until your program quits.
+
+      For example, you have a load balancer, and your service registry needs to know if each instance
+        is still up, so each instance sends a heartbeat message to the service registry.  We could
+        migrate this task to a daemon thread.
 
 
 
