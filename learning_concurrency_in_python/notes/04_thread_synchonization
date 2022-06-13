@@ -37,3 +37,25 @@
 
     - Life-critical systems need to be especially careful about race conditions.  The Therac-25
         radiation therapy machine had a race condition that resulted in multiple people dying.
+
+
+
+- The join Method
+
+    - Sometimes, being able to dictate the execution order of some tasks is important.  The 'join'
+        method blocks the parent thread from progressing any further until the child thread has
+        terminated.
+
+    - An example of using this method is included in 'code/ch04/thread_join.py'.
+
+        def main():
+            thread = threading.Thread(target=our_thread, args=(1,))
+            thread.start()
+
+            print("Is thread 1 Finished?")
+
+            thread2 = threading.Thread(target=our_thread, args=(2,))
+            thread2.start()
+            thread2.join()
+
+            print("Thread 2 definitely finished")
