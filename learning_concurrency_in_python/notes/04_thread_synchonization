@@ -1,0 +1,39 @@
+-----------------------------------------------------------------------
+| CHAPTER 4 - SYNCHRONIZATION BETWEEN THREADS                         |
+-----------------------------------------------------------------------
+
+- The Dining Philosophers
+
+    - Described by Dijkstra (1965), the Hoare.  Five philosophers sit at a table, and they must
+        acquire both the forks left and right of them to eat.
+
+    - If we run our simulation in 'dining_philosophers.py', and we can see that some of our philosophers
+        manage to eat, but it quickly results in deadlock.  In this case, we have implemented the forks 
+        using RLocks.
+
+
+
+- Race Conditions
+
+    - A race condition occurs in a system where the output is dependent on the sequence or timing of
+        uncontrollable events.
+
+    - For instance, imagine there are 2 transfers going into your bank account, and since they both
+        access the balance at the same time, only one of them is actually reflected.
+
+    - The solution is to put a lock on the bank balance so that each process can read and update it
+        separately.
+
+
+
+- Critical Sections
+
+    - A 'critical section' is any part of code that may modify or access a shared resource.  These
+        sections of code cannot, under any circumstances, be executed by more than one process at a
+        time.
+
+    - Race conditions can also plague filesystems.  If two processes try to simultaneously modify a 
+        file, the file could become corrupted.
+
+    - Life-critical systems need to be especially careful about race conditions.  The Therac-25
+        radiation therapy machine had a race condition that resulted in multiple people dying.
