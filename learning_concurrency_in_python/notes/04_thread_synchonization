@@ -59,3 +59,73 @@
             thread2.join()
 
             print("Thread 2 definitely finished")
+
+
+
+- Locks
+
+    - A 'lock' is a synchronization primitive that allows access to shared resources from multiple
+        threads of execution.  It can be in either a 'locked' or 'unlocked' state.  
+
+    - In 'code/ch04/locks.py', we have an example of using locking to make access to a shared 
+        variable safe.  We can remove the locks in this exercise to see how inconsistent results are
+        generated.
+
+        # Create a lock
+        lock = threading.Lock()
+
+        # Acquire a lock
+        lock.acquire()
+
+        # Release a lock
+        lock.release()
+
+
+
+- RLocks
+
+
+- RLocks vs Regular Locks
+
+
+- Semaphores
+
+
+- The 'TicketSeller' Class
+
+
+- Bounded Semaphores
+
+
+- Events
+
+
+- Barriers
+
+    - A 'lock' is a synchronization primitive that allows access to shared resources from multiple
+        threads of execution.  It can be in either a 'locked' or 'unlocked' state.
+
+    - In 'code/ch04/locks.py', we have an example of unsafe access when a lock is not being used
+        ('race_condition') and an example of using locking to make it safe ('use_locking').
+
+
+
+- RLocks
+
+
+- RLocks vs Regular Locks
+
+
+- Semaphores
+
+
+- The 'TicketSeller' Class
+
+
+- Bounded Semaphores
+
+
+- Events
+
+
+- Barriers
