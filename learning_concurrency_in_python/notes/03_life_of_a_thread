@@ -208,9 +208,43 @@
 
 - Ending a Thread
 
+    - Ending threads is bad practice, and we should actively avoid it.  A thread could be holding on
+        to a resource, or it might leave orphaned child threads.
+
+
+    - If you do need to shut down threads at the end of execution, just killing the entire process
+        allows for a much cleaner solution.
+
+        def my_worker():
+            t1 = time.time()
+            print("Process started at: {}".format(t1))
+            time.sleep(20)
+
+        def start_and_end_process():
+            myProcess = Process(target=my_worker)
+            print("Process {}".format(myProcess))
+            myProcess.start()
+            print("Terminating Process...")
+            myProcess.terminate()
+            myProcess.join()
+            print("Process Terminated: {}".format(myProcess))
+
+
+    - Orphan processes have no alive parent process.  The take up resources and provide no benefit,
+        and the only way to deal with them is to enumerate alive threads and kill them.
+
 
 
 - How the OS Handles Threads
+
+    - We'll create 2 versions of the same task, one completed by spinning up 10 processes, and one
+        completed by spinning up 10 threads, and time them for comparison in 'fork_vs_create.py'.
+
+      We can see that spinning up processors takes 10x longer for this simple task.
+
+
+    - One solution to mitigate this problem is to create a pool of processes or threads at startup
+        time and keep them around for when you need tasks done.
 
 
 
@@ -218,6 +252,25 @@
 
     - One-to-One Thread Mapping
 
+        - One user-level thread is mapped directly to one kernel-level thread.  Creating all those
+            threads is expensive, but the threads are not subject to the same level of locking as
+            with many-to-one mappings.
+
+
     - Many-to-One
 
+        - Many user-level threads are mapped to a single kernel thread.  We can manage the user-level
+            threads more efficiently this way.  However, if a uer-level thread is blocked, the entire
+            kernel-level thread is also blocked.
+
+
     - Many-to-Many
+
+        - Many user-level threads are mapped to many kernel-level threads.  The programmer themselves
+            can choose whether they want a one-to-one or many-to-one model.
+
+
+    - Within Python, we typically go with the one user thread to one kernel thread mapping, so every
+        thread we create with our multithreaded applications will take non-trivial resources.
+
+      The 'asyncio' module does let you implement multithreaded-like applications on a single thread.
