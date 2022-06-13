@@ -27,6 +27,10 @@
         kwargs: This is a dictionary of keyword arguments to invoke the base class constructor.
 
 
+    - Note that if we don't take care to think about whether multiple threads will truly solve our
+        problem, we are just as likely to slow our performance down spinning up too many threads.
+
+
 
 - Thread States
 
@@ -92,23 +96,117 @@
 
 
 
-- Handling Threads in Python
+- Starting Lots of Threads
 
-    - Starting Lots of Threads
+    - We can create lots of threads in the same for loop:
 
-    - Slowing Down Programs Using Threads
+        import random, time, threading
 
-    - Getting the Total Number of Active Threads
+        def execute_thread(i):
+            print("Thread {} started".format(i))
+            sleepTime = random.randint(1,10)
+            time.sleep(sleepTime)
+            print("Thread {} finished executing".format(i))
 
-    - Getting the Current Thread
+        for i in range(10):
+            thread = threading.Thread(target=execute_thread, args=(i,))
+            thread.start()
+            print("Active Threads:" , threading.enumerate())
 
-    - Main Thread
 
-    - Enumerating All Threads
 
-    - Identifying Threads
+- Getting the Total Number of Active Threads
 
-    - Ending a Thread
+    - Sometimes, we may want to query the number of active threads running in our Python program:
+
+        for i in range(random.randint(2, 50)):
+            thread = threading.Thread(target=execute_thread, args=(i,))
+            thread.start()
+
+        time.sleep(4)
+        print("Total number of active threads: {}".format(threading.active_count()))
+
+
+
+- Getting the Current Thread
+
+    - For a quick and easy way to figure out what thread we are on, we can use the 'current_thread'
+        function.
+
+        def thread_target():
+            print("Current Thread: {}".format(threading.current_thread()))
+
+        threads = []
+        for i in range(10):
+            thread = threading.Thread(target=thread_target)
+            thread.start()
+            threads.append(thread)
+        for thread in threads:
+            thread.join()
+
+
+
+- Main Thread
+
+    - All Python programs feature at least one main thread.  We can retrieve it using 'main_thread'.
+
+        def myChildThread():
+            print("Child Thread Starting")
+            time.sleep(5)
+            print("Current Thread ----------")
+            print(threading.current_thread())
+            print("-------------------------")
+            print("Main Thread -------------")
+            print(threading.main_thread())
+            print("-------------------------")
+            print("Child Thread Ending")
+
+        child = threading.Thread(target=myChildThread)
+        child.start()
+        child.join()
+
+
+
+- Enumerating All Threads
+
+    - We may sometimes need to do things like enumerate through all active threads in order to
+        query their status.
+
+        def my_thread(i):
+            print("Thread {}: started".format(i))
+            time.sleep(random.randint(1,5))
+            print("Thread {}: finished".format(i))
+
+        def enumerate_active_threads():
+            for i in range(4):
+                thread = threading.Thread(target=my_thread, args=(i,))
+                thread.start()
+
+            print("Enumerating: {}".format(threading.enumerate()))
+
+
+
+- Identifying Threads
+
+    - If you have large numbers of threads, it is often useful to put them into groups to ease
+        debugging and monitoring.  We can give threads a unique name to make them easier to track.
+
+        def my_named_thread():
+            print("Thread {} starting".format(threading.currentThread().getName()))
+            time.sleep(10)
+            print("Thread {} ending".format(threading.currentThread().getName()))
+
+        def use_named_threads():
+            for i in range(4):
+                threadName = "Thread-" + str(i)
+                thread = threading.Thread(name=threadName, target=my_named_thread)
+                thread.start()
+
+            print("{}".format(threading.enumerate()))
+
+
+
+- Ending a Thread
 
 
 
