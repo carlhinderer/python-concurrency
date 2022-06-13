@@ -1,0 +1,110 @@
+-----------------------------------------------------------------------------
+| A - REDIS BASICS                                                          |
+-----------------------------------------------------------------------------
+
+- Redis
+
+    - 'Remote Dictionary Server' is an in-memory data structure store, used as a distributed,
+        in-memory key-value database, cache, and message broker, with optional durability.
+
+    - Supports data structures strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps,
+        streams, and spatial indexes.
+
+    - Created by Salvatore Sanfillippo, originally released in 2009.
+
+    - Typical use cases are session caching, full-page cache, message queue applications,
+        leaderboards, and counting.
+
+    - Redis is the world's most popular key/value database.
+
+
+
+- Redis Data Types
+
+    - Primary supported data types:
+
+        - strings
+        - lists of strings
+        - sets of strings
+        - sorted sets of strings (collections of non-repeating elements ordered by score)
+        - hash tables where keys and values are strings
+        - HyperLogLogs used for approximated set cardinality size estimation
+        - stream of entries with consumer groups, allows you to store multiple fields and string values
+        - geospatial data through the implementation of the geohash technique
+
+
+    - More types supported by Redis modules:
+
+        - JSON using 'RedisJSON'
+        - queryable property graphs using 'RedisGraph'
+        - time series data with 'RedisTimeSeries'
+        - bloom and other filters with 'RedisBloom'
+
+
+
+- Persistence
+
+    - Redis typically holds the whole dataset in memory.  Persistence can be achieved either by 
+        snapshotting or journaling (recommended).
+
+    - In the case of journaling, Redis can rewrite the append-only file in the background to avoid
+        indefinite growth of the journal.
+
+    - By default, Redis writes data to a file system at least every 2 seconds, but this is 
+        configurable.
+
+
+
+- Replication
+
+    - Redis support master-replica replication.  Data from a Redis server can replicate to any
+        number of replicas.  A replica may be a master to another replica, which allows Redis to 
+        implement a single-rooted replication tree.
+
+    - Redis replicas can be configured to accept writes, permitting intentional and unintentional
+        inconsistency between instances.
+
+
+
+- Running Redis on Docker
+
+    - Start a redis instance:
+
+        $ docker run --name my-redis 
+                     -d
+                     -p 6379:6379
+                     redis
+
+
+    - Start an instance with persistent storage:
+
+        $ docker run --name my-redis 
+                     -d
+                     -p 6379:6379
+                     -v redis_persistence:/data
+                     redis
+                     redis-server --save 60 1 --loglevel warning
+
+      There are several different persistence strategies to choose from. This one will save a snapshot 
+        of the DB every 60 seconds if at least 1 write operation was performed (it will also lead to 
+        more logs, so the loglevel option may be desirable). 
+
+
+    - To connect via the redis-cli:
+
+        $ docker container exec -i -t my-redis redis-cli
+
+
+    - The 'redis.conf' file is used to configure redis.  We can stick with the defaults for now in
+        local testing, but in production we'd want to fine tune it.
+
+        # /etc/redis/6379.conf
+        --------------------------------
+        port              6379
+        daemonize         yes
+        save              60 1
+        bind              127.0.0.1
+        tcp-keepalive     300
+        dbfilename        dump.rdb
+        dir               ./
+        rdbcompression    yes
