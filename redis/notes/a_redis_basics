@@ -7,8 +7,8 @@
     - 'Remote Dictionary Server' is an in-memory data structure store, used as a distributed,
         in-memory key-value database, cache, and message broker, with optional durability.
 
-    - Supports data structures strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps,
-        streams, and spatial indexes.
+    - Values can be data structures strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps,
+        streams, and spatial indexes.  Note that keys are always strings.
 
     - Created by Salvatore Sanfillippo, originally released in 2009.
 
@@ -108,3 +108,128 @@
         dbfilename        dump.rdb
         dir               ./
         rdbcompression    yes
+
+
+
+- Getting Started with Redis
+
+    - Redis has a request-response model.  You connect to the server over TCP port 6379, request
+        some action, and the server sends you back a response.  Each client does a (typically blocking)
+        read on a socket waiting for the server response.
+
+
+    - To ping the server from redis-cli:
+
+        # Ping server
+        127.0.0.1:6379> PING
+        PONG
+
+
+        # Get information about current user and db
+        127.0.0.1:6379> CLIENT INFO
+
+
+    - To use the dictionary service, we use the 'SET' and 'GET' commands:
+
+        # Set key/value pairs
+        127.0.0.1:6379> SET Bahamas Nassau
+        OK
+
+        127.0.0.1:6379> SET Croatia Zagreb
+        OK
+
+
+        # Get values by key
+        127.0.0.1:6379> GET Croatia
+        "Zagreb"
+
+        127.0.0.1:6379> GET Japan
+        (nil)
+
+
+    - To set and get multiple pairs at a time, the 'MSET' and 'MGET' commands are used.
+
+        # Set multiple pairs at once
+        127.0.0.1:6379> MSET Lebanon Beirut Norway Oslo France Paris
+        OK
+
+        # Get multiple values at once
+        127.0.0.1:6379> MGET Lebanon Norway Bahamas
+        1) "Beirut"
+        2) "Oslo"
+        3) "Nassau"
+
+
+    - We can use the 'EXISTS' command to check if a key exists:
+
+        127.0.0.1:6379> EXISTS Norway
+        (integer) 1
+
+        127.0.0.1:6379> EXISTS Sweden
+        (integer) 0
+
+
+    - The Python redis client library we'll be using (redis-py) encapsulates an actual TCP 
+        connection to a Redis server and sends raw commands as bytes serialized using the RESP
+        (Redis Serialization Protocol).
+
+
+
+- Redis Hash Type
+
+    - A 'hash' is a mapping of 'string':'string' pairs that sits under one top-level key.
+
+        127.0.0.1:6379> HSET realpython url "https://realpython.com/"
+        (integer) 1
+
+        127.0.0.1:6379> HSET realpython github realpython
+        (integer) 1
+
+        127.0.0.1:6379> HSET realpython fullname "Real Python"
+        (integer) 1
+
+
+    - We can use the 'HMSET' to set multiple pairs in a hash at once:
+
+        127.0.0.1:6379> HMSET pypa url "https://www.pypa.io/" github pypa 
+                          fullname "Python Packaging Authority"
+        OK
+
+
+    - The 'HGETALL' command returns all hash pairs.
+
+        127.0.0.1:6379> HGETALL pypa
+        1) "url"
+        2) "https://www.pypa.io/"
+        3) "github"
+        4) "pypa"
+        5) "fullname"
+        6) "Python Packaging Authority"
+
+
+    - Since we're going to be starting over in Python, we'll clear our toy database and quit the
+        REPL.
+
+        127.0.0.1:6379> FLUSHDB
+        OK
+
+        127.0.0.1:6379> QUIT
+
+
+
+- Command Reference For Other Types
+
+    Type      Commands
+    ---------------------------------------------
+    Sets      SADD, SCARD, SDIFF, SDIFFSTORE, SINTER, SINTERSTORE, SISMEMBER, SMEMBERS, SMOVE, SPOP,
+                SRANDMEMBER, SREM, SSCAN, SUNION, SUNIONSTORE
+
+    Hashes    HDEL, HEXISTS, HGET, HGETALL, HINCRBY, HINCRBYFLOAT, HKEYS, HLEN, HMGET, HMSET, HSCAN, 
+                HSET, HSETNX, HSTRLEN, HVALS
+
+    Lists     BLPOP, BRPOP, BRPOPLPUSH, LINDEX, LINSERT, LLEN, LPOP, LPUSH, LPUSHX, LRANGE, LREM, LSET, 
+                LTRIM, RPOP, RPOPLPUSH, RPUSH, RPUSHX
+
+    Strings   APPEND, BITCOUNT, BITFIELD, BITOP, BITPOS, DECR, DECRBY, GET, GETBIT, GETRANGE, GETSET, 
+                INCR, INCRBY, INCRBYFLOAT, MGET, MSET, MSETNX, PSETEX, SET, SETBIT, SETEX, SETNX, 
+                SETRANGE, STRLEN
