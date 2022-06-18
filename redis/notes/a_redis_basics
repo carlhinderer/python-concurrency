@@ -169,6 +169,11 @@
         (integer) 0
 
 
+    - To see all keys in the database:
+
+        127.0.0.1:6379> KEYS *
+
+
     - The Python redis client library we'll be using (redis-py) encapsulates an actual TCP 
         connection to a Redis server and sends raw commands as bytes serialized using the RESP
         (Redis Serialization Protocol).

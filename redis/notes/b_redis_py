@@ -1,0 +1,127 @@
+-----------------------------------------------------------------------------
+| B - USING REDIS-PY                                                        |
+-----------------------------------------------------------------------------
+
+- Beginning with redis-py
+
+    - Real Python Article:
+
+        https://realpython.com/python-redis/
+
+
+
+    - To install the client library:
+
+        $ pip install redis
+
+
+    - To start using it:
+
+        >>> import redis
+
+        >>> r = redis.Redis
+        >>> r.set('USA', 'Washington DC')
+        >>> r.mset({"Croatia": "Zagreb", "Bahamas": "Nassau"})
+
+        >>> r.get("Bahamas")
+        b'Nassau'
+
+
+    - Here is the redis constructor, which you can pass different options into.
+
+        # From redis/client.py
+        class Redis(object):
+            def __init__(self, host='localhost', port=6379,
+                         db=0, password=None, socket_timeout=None,
+                         # ...)
+
+
+
+- Allowed Key Types
+
+    - Redis-py allows keys that are bytes, str, int, or float.  (The last 3 will be converted to
+        bytes before being sent to the server.)
+
+
+    - If you want to use a date type as a key, you have to convert it to a string:
+
+        import datetime
+
+        today = datetime.date.today()
+        visitors = {'dan', 'jon', 'alex'}
+
+        # Convert date to string
+        stoday = today.isoformat()
+
+        # Add to visitors set
+        r.sadd(stoday, *visitors)
+
+
+
+- Example - PyHats Loading Inventory
+
+    - We're going to to use Redis to create a product catalog for our hat store.  We'll add 3 hats to
+        our inventory.
+
+      Each hat gets held in a Redis hash of field-value pairs, and the hash has a key that is a prefixed
+        random intenger (ie 'hat:56854717').  Using this prefix notation is a convention for 
+        creating namespace-like structures in Redis.
+
+
+        import random
+
+        random.seed(444)
+        hats = {f"hat:{random.getrandbits(32)}": i for i in (
+            {
+                "color": "black",
+                "price": 49.99,
+                "style": "fitted",
+                "quantity": 1000,
+                "npurchased": 0,
+            },
+            {
+                "color": "maroon",
+                "price": 59.99,
+                "style": "hipster",
+                "quantity": 500,
+                "npurchased": 0,
+            },
+            {
+                "color": "green",
+                "price": 99.99,
+                "style": "baseball",
+                "quantity": 200,
+                "npurchased": 0,
+            })
+        }
+
+
+    - We'll use database 1, since we used database 0 in the last example.
+
+        r = redis.Redis(db=1)
+
+
+    - Now, we'll do an initial write of this data into Redis.  We'll use pipelining, which means all
+        commands are buffered on the client side, then sent at once with 'pipe.execute()'.
+
+        with r.pipeline() as pipe:
+            for h_id, hat in hats.items():
+                pipe.hmset(h_id, hat)
+            pipe.execute()
+
+        r.bgsave()
+
+
+    - Now, we can check that everything is there in our Redis database:
+
+        # Check one of our new items
+        pprint(r.hgetall("hat:56854717"))
+
+        # Look at all the keys in the database
+        r.keys()
+
+
+
+- Redis Transactions
+
+    - 
