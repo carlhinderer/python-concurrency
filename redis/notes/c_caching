@@ -1,0 +1,38 @@
+-----------------------------------------------------------------------------
+| C - CACHING                                                               |
+-----------------------------------------------------------------------------
+
+- Using Redis as a Cache for Postgres
+
+    - Your PostgreSQL database is optimized to be correct.  Redis is optimized for speed.  There are 3
+        ways to use Redis with PostgreSQL:
+
+        1. Read Through
+             - Offset reads from Postgres by caching commonly accessed data in Redis
+
+        2. Write Back
+             - Write to Redis first, then push out to Postgres later
+
+        3. Cut Out Postgres Entirely
+             - Some data can live only in Redis
+
+
+
+- Considering What to Cache
+
+    - Does this query impact user experience?
+    - Does it matter if this data is slightly stale?
+    - Will this query grow with usage?
+    - Do I need to run complex queries on this data?
+    - Can I lose this data without negative impacts?
+    - Is there a specialized tool that would do a better job?
+
+
+
+- Cache Invalidation Policies
+
+    - TTL = ask Redis to automatically expire an item after a set time period
+
+    - Cache on Write = for data with a high read rate that changes infrequently, just update the
+                         cache each time you write to PostgreSQL (this becomes more expensive as
+                         write frequency increases)
